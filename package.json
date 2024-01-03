@@ -1,0 +1,25 @@
+{
+  "name": "svgworld",
+  "description": "simple SVG world map / chart",
+  "author": {
+    "name" : "komed3 (Paul Köhler)",
+    "email" : "webmaster@komed3.de",
+    "url" : "https://komed3.de"
+  },
+  "homepage": "https://github.com/komed3/svgworld#readme",
+  "version": "1.0.0",
+  "license": "MIT",
+  "keywords": [
+    "map",
+    "world",
+    "chart",
+    "svg"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/komed3/svgworld.git"
+  },
+  "bugs": {
+    "url": "https://github.com/komed3/svgworld/issues"
+  }
+}
