@@ -3,7 +3,7 @@
  * simple SVG world map / chart
  * 
  * @author komed3 (Paul Köhler)
- * @version 1.0.0
+ * @version 0.1.0
  * @license MIT
  */
 

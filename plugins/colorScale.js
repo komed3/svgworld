@@ -3,7 +3,7 @@
  * color scale generator
  * 
  * @author komed3 (Paul Köhler)
- * @version 1.0.0
+ * @version 0.1.0
  * @license MIT
  */
 
@@ -93,7 +93,9 @@ export default class colorScale {
                 default: case 'linear':
                     return this.colors[
                         Math[ approx ](
-                            ( y - this.min ) / this.range * this.steps
+                            ( y - this.min ) /
+                            this.range *
+                            this.steps
                         )
                     ];
 
@@ -103,7 +105,9 @@ export default class colorScale {
                 case 'log': case 'logarithmic':
                     return this.colors[
                         y <= 1 ? 0 : Math[ approx ](
-                            Math.log10( y - this.min ) / Math.log10( this.range ) * this.steps
+                            Math.log10( y - this.min ) /
+                            Math.log10( this.range ) *
+                            this.steps
                         )
                     ];
 
