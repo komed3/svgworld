@@ -12,15 +12,19 @@
 export default class SVGWorld {
 
     /**
-     * map container
-     * DOM node
+     * DOM nodes / elements
      **/
-    container;
+    container; svg;
 
     /**
      * map options
      */
     options = {};
+
+    /**
+     * chart elements
+     */
+    chartElements = {};
 
     /**
      * debug mode
@@ -64,6 +68,7 @@ export default class SVGWorld {
 
         this.container = container;
         this.options = data.options || {};
+        this.chartElements = data.elements || {};
 
         /**
          * enable debug mode
@@ -74,6 +79,11 @@ export default class SVGWorld {
          * load map object
          */
         this.#loadMap( data.map || {} );
+
+        /**
+         * add chart element
+         */
+        this.#chartElements();
 
         /**
          * draw map
@@ -210,7 +220,7 @@ export default class SVGWorld {
     };
 
     /**
-     * draw basic map
+     * draw/create map
      */
     #drawMap () {
 
@@ -219,9 +229,9 @@ export default class SVGWorld {
         /**
          * create svg container
          */
-        let svg = document.createElementNS( svgns, 'svg' );
+        this.svg = document.createElementNS( svgns, 'svg' );
 
-        svg.setAttribute( 'viewBox', this.map.viewBox || '0 0 100 100' );
+        this.svg.setAttribute( 'viewBox', this.map.viewBox || '0 0 100 100' );
 
         Object.assign( this.container.style, {
             display: 'flex',
@@ -231,7 +241,7 @@ export default class SVGWorld {
             gap: '20px'
         } );
 
-        this.container.appendChild( svg );
+        this.container.appendChild( this.svg );
 
         /**
          * create paths group
@@ -240,7 +250,7 @@ export default class SVGWorld {
 
         g.setAttribute( 'map-id', 'paths' );
 
-        svg.appendChild( g );
+        this.svg.appendChild( g );
 
         /**
          * loop through map paths
@@ -273,10 +283,41 @@ export default class SVGWorld {
 
         /**
          * callback "afterDrawMap"
-         * @param {Node} svg svg element
-         * @param {String} svgns svg namespace
          */
-        this.#callback( 'afterDrawMap', [ svg, svgns ] );
+        this.#callback( 'afterDrawMap' );
+
+    };
+
+    /**
+     * create chart elements
+     */
+    #chartElements () {
+
+        /**
+         * show title
+         */
+        if( 'title' in this.chartElements ) {
+
+            let title = document.createElement( 'div' );
+
+            title.innerHTML = this.chartElements.title.text || '';
+
+            Object.assign( title.style, this.chartElements.title.style || {} );
+
+            this.container.insertBefore( title, this.svg );
+
+            /**
+             * callback "chartElementsTitle"
+             * @param {Node} title title element
+             */
+            this.#callback( 'chartElementsTitle', [ title ] );
+
+        }
+
+        /**
+         * callback "afterChartElemente"
+         */
+        this.#callback( 'afterChartElemente' );
 
     };
 
@@ -311,7 +352,7 @@ export default class SVGWorld {
      * @param {String} fn callback function name
      * @param {Array} args function arguments
      */
-    #callback ( fn, args ) {
+    #callback ( fn, args = [] ) {
 
         /**
          * test if callback exists
