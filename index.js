@@ -22,11 +22,6 @@ export default class SVGWorld {
     options = {};
 
     /**
-     * chart elements
-     */
-    chartElements = {};
-
-    /**
      * debug mode
      */
     debug = false;
@@ -68,7 +63,6 @@ export default class SVGWorld {
 
         this.container = container;
         this.options = data.options || {};
-        this.chartElements = data.elements || {};
 
         /**
          * enable debug mode
@@ -109,7 +103,7 @@ export default class SVGWorld {
              * show tooltip over paths
              */
 
-            if( e.target.localName == 'path' ) {
+            if( e.target.tagName.toLowerCase() == 'path' ) {
 
                 this.#tooltip( e );
 
@@ -250,20 +244,27 @@ export default class SVGWorld {
         let svgns = 'http://www.w3.org/2000/svg';
 
         /**
-         * create svg container
+         * container style
          */
-        this.svg = document.createElementNS( svgns, 'svg' );
 
-        this.svg.setAttribute( 'viewBox', this.map.viewBox || '0 0 100 100' );
+        this.container.classList.add( 'svgworld-container' );
 
         Object.assign( this.container.style, {
-            position: 'relative',
             display: 'flex',
             flexFlow: 'column nowrap',
             justifyContent: 'center',
             alignItems: 'center',
             gap: '20px'
         } );
+
+        /**
+         * create svg container
+         */
+        this.svg = document.createElementNS( svgns, 'svg' );
+
+        this.svg.classList.add( 'svgworld-plane' );
+        this.svg.setAttribute( 'viewBox', this.map.viewBox || '0 0 100 100' );
+        this.svg.style.position = 'relative';
 
         this.container.appendChild( this.svg );
 
@@ -272,6 +273,7 @@ export default class SVGWorld {
          */
         let g = document.createElementNS( svgns, 'g' );
 
+        g.classList.add( 'svgworld-series' );
         g.setAttribute( 'map-id', 'paths' );
 
         this.svg.appendChild( g );
@@ -283,6 +285,7 @@ export default class SVGWorld {
 
             let path = document.createElementNS( svgns, 'path' );
 
+            path.classList.add( 'svgworld-path' );
             path.setAttribute( 'd', item.path || '' );
             path.setAttribute( 'map-id', item.id );
 
@@ -318,15 +321,16 @@ export default class SVGWorld {
     #chartElements () {
 
         /**
-         * show title
+         * add chart title
          */
-        if( 'title' in this.chartElements ) {
+        if( 'title' in this.options && this.options.title.enabled ) {
 
             let title = document.createElement( 'div' );
 
-            title.innerHTML = this.chartElements.title.text || '';
+            title.classList.add( 'svgworld-title' );
+            title.innerHTML = this.options.title.text || '';
 
-            Object.assign( title.style, this.chartElements.title.style || {} );
+            Object.assign( title.style, this.options.title.style || {} );
 
             this.container.insertBefore( title, this.svg );
 
@@ -335,6 +339,36 @@ export default class SVGWorld {
              * @param {Node} title title element
              */
             this.#callback( 'chartElementsTitle', [ title ] );
+
+        }
+
+        /**
+         * add tooltip
+         */
+        if( 'tooltip' in this.options && this.options.tooltip.enabled ) {
+
+            let tooltip = document.createElement( 'div' );
+
+            tooltip.classList.add( 'svgworld-tooltip' );
+            Object.assign( tooltip.style, {
+                ...{
+                    position: 'absolute',
+                    width: '20px',
+                    height: '20px',
+                    display: 'none',
+                    backgroundColor: 'red',
+                    zIndex: 2
+                },
+                ...( this.options.tooltip.style || {} )
+            } );
+
+            this.container.appendChild( tooltip );
+
+            /**
+             * callback "chartElementsTooltop"
+             * @param {Node} tooltip tooltip element
+             */
+            this.#callback( 'chartElementsTooltip', [ tooltip ] );
 
         }
 
@@ -351,7 +385,17 @@ export default class SVGWorld {
      */
     #tooltip ( e ) {
 
-        //
+        let tooltip = this.container.querySelector( '.svgworld-tooltip' );
+
+        if( tooltip ) {
+
+            Object.assign( tooltip.style, {
+                display: 'block',
+                top: e.pageY + 'px',
+                left: e.pageX + 'px'
+            } );
+
+        }
 
     };
 
