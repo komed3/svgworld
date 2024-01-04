@@ -100,6 +100,29 @@ export default class SVGWorld {
          */
         this.setSize( '100%', 640 );
 
+        /**
+         * register event listener
+         */
+        this.container.addEventListener( 'mousemove', ( e ) => {
+
+            /**
+             * show tooltip over paths
+             */
+
+            if( e.target.localName == 'path' ) {
+
+                this.#tooltip( e );
+
+            }
+
+            /**
+             * callback "eventMouseMove"
+             * @param {Event} e mousemove event
+             */
+            this.#callback( 'eventMouseMove', [ e ] );
+
+        } );
+
     };
 
     /**
@@ -234,6 +257,7 @@ export default class SVGWorld {
         this.svg.setAttribute( 'viewBox', this.map.viewBox || '0 0 100 100' );
 
         Object.assign( this.container.style, {
+            position: 'relative',
             display: 'flex',
             flexFlow: 'column nowrap',
             justifyContent: 'center',
@@ -318,6 +342,16 @@ export default class SVGWorld {
          * callback "afterChartElemente"
          */
         this.#callback( 'afterChartElemente' );
+
+    };
+
+    /**
+     * show tooltip
+     * @param {Event} e trigger event
+     */
+    #tooltip ( e ) {
+
+        //
 
     };
 
