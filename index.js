@@ -9,6 +9,11 @@ export default class SVGWorld {
     container;
 
     /**
+     * debug mode
+     */
+    debug = false;
+
+    /**
      * json map object
      */
     map;
@@ -16,14 +21,15 @@ export default class SVGWorld {
     /**
      * map data
      */
-    mapData;
+    mapData = [];
 
     /**
      * create new SVGWorld from data 
-     * @param {Node} container 
-     * @param {Object} data 
+     * @param {Node} container map container
+     * @param {Object} data map data/options
+     * @param {Boolean} debug enable debug mode
      */
-    constructor ( container, data ) {
+    constructor ( container, data, debug = false ) {
 
         /**
          * check if container element exists
@@ -38,6 +44,7 @@ export default class SVGWorld {
         }
 
         this.container = container;
+        this.debug = !!debug;
 
         /**
          * load map object
@@ -137,6 +144,10 @@ export default class SVGWorld {
                 path.setAttribute( 'map-y', item.y || 0 );
 
                 Object.assign( path.style, item.style || {} );
+
+            } else if( this.debug ) {
+
+                console.warn( 'SVGWorld warn: ' + item.id + ' not recognized' );
 
             }
 
