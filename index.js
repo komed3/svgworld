@@ -157,6 +157,12 @@ export default class SVGWorld {
         this.#emptyMap();
 
         /**
+         * callback "beforeSetData"
+         * @param {Object} paths map paths
+         */
+        this.#callback( 'beforeSetData', [ this.paths ] );
+
+        /**
          * loop through map data
          */
 
@@ -178,6 +184,13 @@ export default class SVGWorld {
                 min = Math.min( min, path.y || 0 );
                 max = Math.max( max, path.y || 0 );
 
+                /**
+                 * callback "setItem"
+                 * @param {Object} item data item
+                 * @param {Object} path map path item
+                 */
+                this.#callback( 'setItem', [ item, path ] );
+
             } else if ( this.debug ) {
 
                 console.warn( 'SVGWorld warn: ' + item.id + ' not recognized' );
@@ -187,9 +200,12 @@ export default class SVGWorld {
         } );
 
         /**
-         * callback
+         * callback "afterSetData"
+         * @param {Object} paths map paths
+         * @param {Float} min min value
+         * @param {Float} max max value
          */
-        this.#callback( 'setData', [ this.paths, min, max ] );
+        this.#callback( 'afterSetData', [ this.paths, min, max ] );
 
     };
 
@@ -246,7 +262,21 @@ export default class SVGWorld {
                 }
             }
 
+            /**
+             * callback "createPath"
+             * @param {Node} path path element
+             * @param {Object} item path item
+             */
+            this.#callback( 'createPath', [ path, item ] );
+
         } );
+
+        /**
+         * callback "afterDrawMap"
+         * @param {Node} svg svg element
+         * @param {String} svgns svg namespace
+         */
+        this.#callback( 'afterDrawMap', [ svg, svgns ] );
 
     };
 
@@ -261,7 +291,16 @@ export default class SVGWorld {
 
             path.y = 0;
 
-            Object.assign( path.svgEl.style, this.options.path?.style || {} );
+            Object.assign(
+                path.svgEl.style,
+                this.options.path?.style || {}
+            );
+
+            /**
+             * callback "emptyPath"
+             * @param {Object} path path object
+             */
+            this.#callback( 'emptyPath', [ path ] );
 
         } );
 
@@ -281,7 +320,7 @@ export default class SVGWorld {
 
             if ( typeof this.options.callbacks[ fn ] == 'function' ) {
 
-                this.options.callbacks[ fn ]( ...args );
+                this.options.callbacks[ fn ]( ...args, this );
 
             } else if ( this.debug ) {
 
