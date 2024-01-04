@@ -14,9 +14,9 @@ export default class SVGWorld {
     map;
 
     /**
-     * chart object
+     * map data
      */
-    chart;
+    mapData;
 
     /**
      * create new SVGWorld from data 
@@ -48,6 +48,11 @@ export default class SVGWorld {
          * draw map
          */
         this.#drawMap();
+
+        /**
+         * set data
+         */
+        this.setData( data.data || [] );
 
         /**
          * set size
@@ -95,7 +100,49 @@ export default class SVGWorld {
 
     };
 
-    setData ( data ) {};
+    /**
+     * set map data
+     * @param {Array} data map data
+     */
+    setData ( data ) {
+
+        /**
+         * check if map data are readable
+         */
+        if( !Array.isArray( data ) ) {
+
+            /**
+             * [ERR] map data must be of type array
+             */
+            throw new Error( 'SVGWorld error: map data must be of type array' );
+
+        }
+
+        this.mapData = data;
+
+        /**
+         * empty map
+         */
+        this.#emptyMap();
+
+        /**
+         * loop through map data
+         */
+        this.mapData.forEach( item => {
+
+            if( item.id in this.map.path ) {
+
+                let path = this.container.querySelector( '[map-id="' + item.id + '"]' );
+
+                path.setAttribute( 'map-y', item.y || 0 );
+
+                Object.assign( path.style, item.style || {} );
+
+            }
+
+        } );
+
+    };
 
     /**
      * draw basic map
@@ -133,12 +180,12 @@ export default class SVGWorld {
         /**
          * loop through map paths
          */
-        Object.values( this.map.path ).forEach( p => {
+        Object.values( this.map.path ).forEach( item => {
 
             let path = document.createElementNS( svgns, 'path' );
 
-            path.setAttribute( 'd', p.path || '' );
-            path.setAttribute( 'map-id', p.id );
+            path.setAttribute( 'd', item.path || '' );
+            path.setAttribute( 'map-id', item.id );
 
             g.appendChild( path );
 
@@ -146,6 +193,19 @@ export default class SVGWorld {
 
     };
 
-    update () {};
+    /**
+     * reset map paths
+     */
+    #emptyMap () {
+
+        this.container.querySelectorAll( '[map-id="paths"] path' ).forEach( path => {
+
+            path.setAttribute( 'map-y', 0 );
+
+            Object.assign( path.style, {} );
+
+        } );
+
+    };
 
 };
