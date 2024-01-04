@@ -8,6 +8,14 @@
 
 'use strict';
 
+/**
+ * import default style
+ */
+import style from './themes/default.json' assert { type: 'json' };
+
+/**
+ * SVGWorld class
+ */
 export default class SVGWorld {
 
     /**
@@ -22,7 +30,7 @@ export default class SVGWorld {
 
     /**
      * SVGWorld constructor
-     * @param {Node} container map container
+     * @param {Element} container map container
      * @param {Object} options map options
      */
     constructor ( container, options ) {
@@ -69,6 +77,8 @@ export default class SVGWorld {
         svg.classList.add( 'svgworld-plane' );
         svg.setAttribute( 'viewBox', map.viewBox || '0 0 100 100' );
 
+        this.#style( svg, 'plane' );
+
         this.container.appendChild( svg );
 
         /**
@@ -78,6 +88,8 @@ export default class SVGWorld {
         let group = document.createElementNS( svgns, 'g' );
 
         group.classList.add( 'svgworld-series' );
+
+        this.#style( group, 'series' );
 
         svg.appendChild( group );
 
@@ -90,11 +102,28 @@ export default class SVGWorld {
             let path = document.createElementNS( svgns, 'path' );
 
             path.classList.add( 'svgworld-path' );
-            path.setAttribute( 'map-id', p.id );
             path.setAttribute( 'd', p.path );
+            path.setAttribute( 'map-id', p.id );
+
+            this.#style( path, 'emptyPath' );
 
             group.appendChild( path );
 
+        } );
+
+    };
+
+    /**
+     * assign styles to element
+     * @param {Element} el element
+     * @param {String} themeDefault theme defaults name
+     * @param {Object} styles style options
+     */
+    #style ( el, themeDefault, styles = {} ) {
+
+        Object.assign( el.style, {
+            ...( style[ themeDefault ] || {} ),
+            ...styles
         } );
 
     };
