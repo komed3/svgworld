@@ -1,7 +1,7 @@
 {
   "name": "World map",
   "viewBox": "45 0 900 540",
-  "path": {
+  "paths": {
     "af": {
       "id": "af",
       "label": "Afghanistan",
