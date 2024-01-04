@@ -1,3 +1,12 @@
+/**
+ * SVGWorld
+ * simple SVG world map / chart
+ * 
+ * @author komed3 (Paul Köhler)
+ * @version 1.0.0
+ * @license MIT
+ */
+
 'use strict';
 
 export default class SVGWorld {
@@ -9,6 +18,11 @@ export default class SVGWorld {
     container;
 
     /**
+     * map options
+     */
+    options = {};
+
+    /**
      * debug mode
      */
     debug = false;
@@ -16,7 +30,12 @@ export default class SVGWorld {
     /**
      * json map object
      */
-    map;
+    map = {};
+
+    /**
+     * map paths
+     */
+    paths = {};
 
     /**
      * map data
@@ -34,7 +53,7 @@ export default class SVGWorld {
         /**
          * check if container element exists
          */
-        if( !container || container.length == 0 ) {
+        if ( !container || container.length == 0 ) {
 
             /**
              * [ERR] container does not exists
@@ -44,6 +63,11 @@ export default class SVGWorld {
         }
 
         this.container = container;
+        this.options = data.options || {};
+
+        /**
+         * enable debug mode
+         */
         this.debug = !!debug;
 
         /**
@@ -77,7 +101,7 @@ export default class SVGWorld {
         /**
          * check if map can be recognized
          */
-        if( typeof map != 'object' || !( 'path' in map ) || typeof map.path != 'object' ) {
+        if ( typeof map != 'object' || !( 'path' in map ) || typeof map.path != 'object' ) {
 
             /**
              * [ERR] map not recognized
@@ -116,7 +140,7 @@ export default class SVGWorld {
         /**
          * check if map data are readable
          */
-        if( !Array.isArray( data ) ) {
+        if ( !Array.isArray( data ) ) {
 
             /**
              * [ERR] map data must be of type array
@@ -135,23 +159,37 @@ export default class SVGWorld {
         /**
          * loop through map data
          */
+
+        let min = Infinity,
+            max = -Infinity;
+
         this.mapData.forEach( item => {
 
-            if( item.id in this.map.path ) {
+            if ( item.id in this.paths ) {
 
-                let path = this.container.querySelector( '[map-id="' + item.id + '"]' );
+                let path = this.paths[ item.id ];
 
-                path.setAttribute( 'map-y', item.y || 0 );
+                path.y = item.y || 0;
 
-                Object.assign( path.style, item.style || {} );
+                path.svgEl.setAttribute( 'map-y', path.y || 0 );
 
-            } else if( this.debug ) {
+                Object.assign( path.svgEl, item.style || {} );
+
+                min = Math.min( min, path.y || 0 );
+                max = Math.max( max, path.y || 0 );
+
+            } else if ( this.debug ) {
 
                 console.warn( 'SVGWorld warn: ' + item.id + ' not recognized' );
 
             }
 
         } );
+
+        /**
+         * callback
+         */
+        this.#callback( 'setData', [ this.paths, min, max ] );
 
     };
 
@@ -200,6 +238,14 @@ export default class SVGWorld {
 
             g.appendChild( path );
 
+            this.paths[ item.id ] = {
+                ...item,
+                ...{
+                    y: 0,
+                    svgEl: path
+                }
+            }
+
         } );
 
     };
@@ -209,13 +255,41 @@ export default class SVGWorld {
      */
     #emptyMap () {
 
-        this.container.querySelectorAll( '[map-id="paths"] path' ).forEach( path => {
+        Object.values( this.paths ).forEach( path => {
 
-            path.setAttribute( 'map-y', 0 );
+            path.svgEl.setAttribute( 'map-y', 0 );
 
-            Object.assign( path.style, {} );
+            path.y = 0;
+
+            Object.assign( path.svgEl.style, {} );
 
         } );
+
+    };
+
+    /**
+     * run callback function
+     * @param {String} fn callback function name
+     * @param {Array} args function arguments
+     */
+    #callback ( fn, args ) {
+
+        /**
+         * test if callback exists
+         */
+        if ( this.options.callbacks && fn in this.options.callbacks ) {
+
+            if ( typeof this.options.callbacks[ fn ] == 'function' ) {
+
+                this.options.callbacks[ fn ]( ...args );
+
+            } else if ( this.debug ) {
+
+                console.warn( 'SVGWorld warn: ' + fn + ' is not a callable function' );
+
+            }
+
+        }
 
     };
 
