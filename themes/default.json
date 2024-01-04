@@ -1,5 +1,11 @@
 {
+    "container": {
+        "fontFamily": "Arial, sans-serif",
+        "fontSize": "16px"
+    },
     "emptyPath": {
-        "fill": "#dddddd"
+        "fill": "#dddddd",
+        "fillOpacity": 0.5,
+        "strokeWidth": 0
     }
 }

@@ -48,6 +48,8 @@ export default class SVGWorld {
         this.container = container;
         this.options = options;
 
+        this.#style( this.container, 'container', this.options.options?.container?.style );
+
         this.#loadMap();
 
     };
@@ -89,7 +91,7 @@ export default class SVGWorld {
 
         group.classList.add( 'svgworld-series' );
 
-        this.#style( group, 'series' );
+        this.#style( group, 'series', this.options.options?.series?.style );
 
         svg.appendChild( group );
 
@@ -105,7 +107,7 @@ export default class SVGWorld {
             path.setAttribute( 'd', p.path );
             path.setAttribute( 'map-id', p.id );
 
-            this.#style( path, 'emptyPath' );
+            this.#style( path, 'emptyPath', this.options.options?.path?.emptyStyle );
 
             group.appendChild( path );
 
