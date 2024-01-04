@@ -261,7 +261,7 @@ export default class SVGWorld {
 
             path.y = 0;
 
-            Object.assign( path.svgEl.style, {} );
+            Object.assign( path.svgEl.style, this.options.path?.style || {} );
 
         } );
 
