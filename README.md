@@ -29,8 +29,8 @@ var chart = new SVGWorld( document.getElementById( 'map' ), {
             colorScale: {
                 minColor: '#2a0211',
                 maxColor: '#e30b5c',
-                steps: 12,
-                scaleType: 'logarithmic'
+                scaleType: 'logarithmic',
+                steps: 12
             }
         },
         callbacks: {
@@ -39,3 +39,17 @@ var chart = new SVGWorld( document.getElementById( 'map' ), {
     }
 } );
 ```
+
+## Documentation
+
+### Callback functions
+
+Callback functions can be used to extend or modify the existing code. They are called from different spots and provide various arguments depending on their purpose. The last argument passed is always the SVGWorld class itself.
+
+| Callback | Arguments | Description |
+|----------|-----------|-------------|
+| ``afterRedraw`` | ``svgworld`` | Fires after drawing map chart. |
+| ``afterClearMap`` | ``ìtems``, ``svgworld`` | Fires after clearing map chart, provides map items. |
+| ``createMapPath`` | ``item``, ``path`` | Fires after creating SVG path element, provides map item and the SVG path itself. |
+| ``mapLoadComplete`` | ``items``, ``map``, ``svg``, ``svgworld`` | Fires after creating whole SVG map and all paths, provides map items, the map itself and the SVG element. |
+| ``afterAssignData`` | ``items``, ``svgworld`` | Fires after assigning map data to items, provides this items. |
