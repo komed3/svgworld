@@ -46,7 +46,7 @@ export default class SVGWorld {
          */
         if( !( container instanceof Element ) ) {
 
-            throw new Error ( '[SVGWorld ERR] container is not a DOM element' );
+            this.err( 'container is not a DOM element' );
 
         }
 
@@ -140,6 +140,17 @@ export default class SVGWorld {
     };
 
     /**
+     * throw Error
+     * @param {String} msg error message
+     * @param {String} method plugin or function
+     */
+    err ( msg, method = 'SVGWorld' ) {
+
+        throw new Error ( method + ' [ERR] ' + msg );
+
+    };
+
+    /**
      * private methodes
      */
 
@@ -157,7 +168,7 @@ export default class SVGWorld {
          */
         if( typeof map != 'object' || !map.paths || typeof map.paths != 'object' ) {
 
-            throw new Error ( '[SVGWorld ERR] map is not defined or contains no paths' );
+            this.err( 'map is not defined or contains no paths' );
 
         }
 

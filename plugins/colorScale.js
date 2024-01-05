@@ -9,109 +9,56 @@
 
 'use strict';
 
-export default class colorScale {
+export default function colorScale ( items, svgworld ) {
 
     /**
-     * define vars
+     * get rgb color array from input
+     * @param {String|Array} color hex or rgb color
+     * @returns rgb color array
      */
-    min; max; range; steps;
-
-    /**
-     * color scale stept
-     */
-    colors = [];
-
-    /**
-     * 
-     * @param {Float} min minimum
-     * @param {Float} max maximum
-     * @param {String} minColor hex color
-     * @param {String} maxColor hex color
-     * @param {Int} steps color steps
-     */
-    constructor ( min, max, minColor, maxColor, steps = 10 ) {
+    const getRGB = ( color ) => {
 
         /**
-         * define vars
+         * rgb color array
          */
-        this.min = min;
-        this.max = max;
-        this.range = max - min;
-        this.steps = steps;
+        if( Array.isArray( color ) && color.length > 2 ) {
 
-        /**
-         * get r, g, b values form hex colors
-         */
-        let minRGB = this.#hex2rgb( minColor ),
-            maxRGB = this.#hex2rgb( maxColor );
-
-        /**
-         * calculate color step matrix
-         */
-        let stepRGB = {
-            r: ( minRGB.r - maxRGB.r ) / steps,
-            g: ( minRGB.g - maxRGB.g ) / steps,
-            b: ( minRGB.b - maxRGB.b ) / steps
-        };
-
-        /**
-         * generate colors steps
-         */
-
-        this.colors.push( minColor );
-
-        for( let i = 1; i < steps; i++ ) {
-
-            this.colors.push( this.#rgb2hex( {
-                r: minRGB.r - ( stepRGB.r * i ),
-                g: minRGB.g - ( stepRGB.g * i ),
-                b: minRGB.b - ( stepRGB.b * i )
-            } ) );
+            return color.slice( 0, 3 );
 
         }
 
-        this.colors.push( maxColor );
+        /**
+         * rgb color string
+         */
+        else if( color.length && color.includes( ',' ) ) {
 
-    };
+            return color.split( ',' ).slice( 0, 3 );
 
-    /**
-     * get color step from value
-     * @param {Float} y value
-     * @param {String} type scale type
-     * @param {String} approx type of approx
-     * @returns hex color
-     */
-    getColor ( y, type = 'linear', approx = 'round' ) {
+        } else if( color.length && color.includes( ' ' ) ) {
 
-        if( y != 0 ) {
+            return color.split( ' ' ).slice( 0, 3 );
 
-            switch( type ) {
+        }
 
-                /**
-                 * linear scale
-                 */
-                default: case 'linear':
-                    return this.colors[
-                        Math[ approx ](
-                            ( y - this.min ) /
-                            this.range *
-                            this.steps
-                        )
-                    ];
+        /**
+         * hex string
+         */
+        else if( color.length > 5 ) {
 
-                /**
-                 * logarithmic scale
-                 */
-                case 'logarithmic': case 'log': case 'log10':
-                    return this.colors[
-                        y <= 1 ? 0 : Math[ approx ](
-                            Math.log10( y - this.min ) /
-                            Math.log10( this.range ) *
-                            this.steps
-                        )
-                    ];
+            return hex2rgb( color );
 
-            }
+        }
+
+        /**
+         * color format could not recognized
+         * throw error
+         */
+        else {
+
+            svgworld.err(
+                'color format [' + color + '] could not recognized',
+                'colorScale'
+            );
 
         }
 
@@ -120,33 +67,160 @@ export default class colorScale {
     /**
      * hex color to rgb
      * @param {String} hex hex color
-     * @returns r, g, b values
+     * @returns rgb color array
      */
-    #hex2rgb ( hex ) {
+    const hex2rgb = ( hex ) => {
 
         let rgb = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec( hex );
 
-        return rgb ? {
-            r: parseInt( rgb[1], 16 ),
-            g: parseInt( rgb[2], 16 ),
-            b: parseInt( rgb[3], 16 )
-        } : {
-            r: 0, g: 0, b: 0
-        };
+        return rgb ? [
+            parseInt( rgb[1], 16 ),
+            parseInt( rgb[2], 16 ),
+            parseInt( rgb[3], 16 )
+        ] : [ 0, 0, 0 ];
 
     };
 
     /**
      * rgb to hex color
-     * @param {Object} rgb r, g, b values
+     * @param {Array} rgb rgb color array
      * @returns hex color
      */
-    #rgb2hex ( rgb ) {
+    const rgb2hex = ( rgb ) => {
 
         return '#' + (
-            1 << 24 | rgb.r << 16 | rgb.g << 8 | rgb.b
+            1 << 24 | rgb[0] << 16 | rgb[1] << 8 | rgb[2]
         ).toString( 16 ).slice( 1 );
 
     };
+
+    /**
+     * set options
+     * colors, steps etc.
+     */
+
+    let minRGB = [ 42, 2, 17 ],
+        maxRGB = [ 227, 11, 92 ];
+
+    let steps = 10,
+        scaleType = 'linear',
+        approx = 'round';
+
+    if( svgworld.options.options?.plugins?.colorScale ) {
+
+        let options = svgworld.options.options.plugins.colorScale;
+
+        if( options.minColor ) {
+
+            minRGB = getRGB( options.minColor );
+
+        }
+
+        if( options.maxColor ) {
+
+            maxRGB = getRGB( options.maxColor );
+
+        }
+
+        steps = parseInt( options.steps || steps );
+        scaleType = options.scaleType || scaleType;
+        approx = options.approx || approx;
+
+    }
+
+    /**
+     * calculate min, max values
+     */
+
+    let minVal = Infinity,
+        maxVal = -Infinity;
+
+    Object.values( items ).forEach( ( item ) => {
+
+        if( item.data.y && !isNaN( item.data.y ) ) {
+
+            minVal = Math.min( minVal, item.data.y );
+            maxVal = Math.max( maxVal, item.data.y );
+
+        }
+
+    } );
+
+    let range = maxVal - minVal;
+
+    /**
+     * calculate color step matrix
+     */
+
+    let stepRGB = [
+        ( minRGB[0] - maxRGB[0] ) / steps,
+        ( minRGB[1] - maxRGB[1] ) / steps,
+        ( minRGB[2] - maxRGB[2] ) / steps
+    ];
+
+    /**
+     * generate colors steps
+     */
+
+    let colors = [];
+
+    colors.push( rgb2hex( minRGB ) );
+
+    for( let i = 1; i < steps; i++ ) {
+
+        colors.push( rgb2hex( [
+            minRGB[0] - ( stepRGB[0] * i ),
+            minRGB[1] - ( stepRGB[1] * i ),
+            minRGB[2] - ( stepRGB[2] * i )
+        ] ) );
+
+    }
+
+    colors.push( rgb2hex( maxRGB ) );
+
+    /**
+     * assign colors to map items
+     */
+
+    Object.values( items ).forEach( ( item ) => {
+
+        if( item.data.y && !isNaN( item.data.y ) ) {
+
+            let c = item.svgEl.style.fill || 'transparent';
+
+            switch( scaleType ) {
+
+                /**
+                 * linear scale
+                 */
+                default: case 'linear':
+                    c = colors[
+                        Math[ approx ](
+                            ( item.data.y - minVal ) / range * steps
+                        )
+                    ];
+                    break;
+
+                /**
+                 * logarithmic scale
+                 */
+                case 'logarithmic': case 'log': case 'log10':
+                    c = colors[
+                        item.data.y <= 1 ? 0 : Math[ approx ](
+                            Math.log10( item.data.y - minVal ) /
+                            Math.log10( range ) * steps
+                        )
+                    ];
+                    break;
+
+            }
+
+            Object.assign( item.svgEl.style, {
+                fill: c
+            } );
+
+        }
+
+    } );
 
 };
