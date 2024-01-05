@@ -50,6 +50,10 @@ export default class SVGWorld {
 
         this.#style( this.container, 'container', this.options.options?.container?.style );
 
+        /**
+         * load map
+         */
+
         this.#loadMap();
 
     };
@@ -99,19 +103,33 @@ export default class SVGWorld {
          * create SVG paths
          */
 
-        Object.values( map.paths ).forEach( ( p ) => {
+        Object.values( map.paths ).forEach( ( item ) => {
 
             let path = document.createElementNS( svgns, 'path' );
 
             path.classList.add( 'svgworld-path' );
-            path.setAttribute( 'd', p.path );
-            path.setAttribute( 'map-id', p.id );
+            path.setAttribute( 'd', item.path );
+            path.setAttribute( 'map-id', item.id );
 
             this.#style( path, 'emptyPath', this.options.options?.path?.emptyStyle );
 
             group.appendChild( path );
 
+            /**
+             * callback "createMapPath"
+             * @param {Object} item map path object
+             * @param {Element} path SVG path
+             */
+            this.#callback( 'createMapPath', [ item, path ] );
+
         } );
+
+        /**
+         * callback "mapLoadComplete"
+         * @param {Object} map map object
+         * @param {Element} svg SVG element
+         */
+        this.#callback( 'mapLoadComplete', [ map, svg ] );
 
     };
 
@@ -127,6 +145,27 @@ export default class SVGWorld {
             ...( style[ themeDefault ] || {} ),
             ...styles
         } );
+
+    };
+
+    /**
+     * run callback function
+     * @param {String} fn callback function name
+     * @param {Array} args function arguments
+     */
+    #callback ( fn, args = [] ) {
+
+        /**
+         * check if callback exists and is executable
+         */
+        if( this.options.callbacks?.[ fn ] && typeof this.options.callbacks[ fn ] == 'function' ) {
+
+            /**
+             * call function
+             */
+            this.options.callbacks[ fn ]( ...args, this );
+
+        }
 
     };
 
