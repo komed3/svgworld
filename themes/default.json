@@ -3,6 +3,10 @@
         "fontFamily": "Arial, sans-serif",
         "fontSize": "16px"
     },
+    "path": {
+        "fillOpacity": 1,
+        "strokeWidth": 0
+    },
     "emptyPath": {
         "fill": "#dddddd",
         "fillOpacity": 0.5,

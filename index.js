@@ -29,6 +29,11 @@ export default class SVGWorld {
     options;
 
     /**
+     * map items
+     */
+    mapItems;
+
+    /**
      * SVGWorld constructor
      * @param {Element} container map container
      * @param {Object} options map options
@@ -41,14 +46,52 @@ export default class SVGWorld {
          */
         if( !( container instanceof Element ) ) {
 
-            throw new Error( '[SVGWorld ERR] container is not a DOM element' );
+            throw new Error ( '[SVGWorld ERR] container is not a DOM element' );
 
         }
 
         this.container = container;
         this.options = options;
 
-        this.#style( this.container, 'container', this.options.options?.container?.style );
+        /**
+         * draw map
+         */
+
+        this.redraw();
+
+    };
+
+    /**
+     * redraw whole map
+     */
+    redraw () {
+
+        /**
+         * container style
+         */
+
+        this.#style(
+            this.container, 'container',
+            this.options.options?.container?.style
+        );
+
+        /**
+         * remove SVG Element if exists
+         */
+
+        let svg = this.container.querySelector( 'svg' );
+
+        if( svg ) {
+
+            svg.remove();
+
+        }
+
+        /**
+         * clear map items
+         */
+
+        this.mapItems = {};
 
         /**
          * load map
@@ -56,8 +99,54 @@ export default class SVGWorld {
 
         this.#loadMap();
 
+        /**
+         * assign map data
+         */
+
+        this.#assignData();
+
+        /**
+         * callback "afterRedraw"
+         */
+        this.#callback( 'afterRedraw' );
+
     };
 
+    /**
+     * clear map
+     * delete all drawn data
+     */
+    clearMap () {
+
+        Object.keys( this.mapItems ).forEach( ( id ) => {
+
+            let item = this.mapItems[ id ];
+
+            item.data = {};
+
+            this.#style(
+                item.svgEl, 'emptyPath',
+                this.options.options?.path?.emptyStyle
+            );
+
+        } );
+
+        /**
+         * callback "afterClearMap"
+         * @param {Object} items map items
+         */
+        this.#callback( 'afterClearMap', [ this.mapItems ] );
+
+    };
+
+    /**
+     * private methodes
+     */
+
+    /**
+     * create SVG element
+     * load map items
+     */
     #loadMap () {
 
         let map = this.options.map || null;
@@ -68,7 +157,7 @@ export default class SVGWorld {
          */
         if( typeof map != 'object' || !map.paths || typeof map.paths != 'object' ) {
 
-            throw new Element( '[SVGWorld ERR] map is not defined or contains no paths' );
+            throw new Error ( '[SVGWorld ERR] map is not defined or contains no paths' );
 
         }
 
@@ -95,7 +184,10 @@ export default class SVGWorld {
 
         group.classList.add( 'svgworld-series' );
 
-        this.#style( group, 'series', this.options.options?.series?.style );
+        this.#style(
+            group, 'series',
+            this.options.options?.series?.style
+        );
 
         svg.appendChild( group );
 
@@ -111,9 +203,18 @@ export default class SVGWorld {
             path.setAttribute( 'd', item.path );
             path.setAttribute( 'map-id', item.id );
 
-            this.#style( path, 'emptyPath', this.options.options?.path?.emptyStyle );
-
             group.appendChild( path );
+
+            /**
+             * register map item
+             */
+
+            this.mapItems[ item.id ] = {
+                id: item.id,
+                svgEl: path,
+                data: {},
+                raw: item
+            };
 
             /**
              * callback "createMapPath"
@@ -124,12 +225,45 @@ export default class SVGWorld {
 
         } );
 
+        this.clearMap();
+
         /**
          * callback "mapLoadComplete"
+         * @param {Object} items map items
          * @param {Object} map map object
          * @param {Element} svg SVG element
          */
-        this.#callback( 'mapLoadComplete', [ map, svg ] );
+        this.#callback( 'mapLoadComplete', [ this.mapItems, map, svg ] );
+
+    };
+
+    /**
+     * assign map data to items
+     */
+    #assignData () {
+
+        Array.from( this.options?.data || [] ).forEach( ( data ) => {
+
+            if( data.id in this.mapItems ) {
+
+                let item = this.mapItems[ data.id ];
+
+                item.data = data;
+
+                this.#style( item.svgEl, 'path', {
+                    ...this.options.options?.path?.style,
+                    ...data.style || {}
+                } );
+
+            }
+
+        } );
+
+        /**
+         * callback "afterAssignData"
+         * @param {Object} items map items
+         */
+        this.#callback( 'afterAssignData', [ this.mapItems ] );
 
     };
 
@@ -158,12 +292,15 @@ export default class SVGWorld {
         /**
          * check if callback exists and is executable
          */
-        if( this.options.callbacks?.[ fn ] && typeof this.options.callbacks[ fn ] == 'function' ) {
+        if(
+            this.options.options?.callbacks?.[ fn ] &&
+            typeof this.options.options.callbacks[ fn ] == 'function'
+        ) {
 
             /**
              * call function
              */
-            this.options.callbacks[ fn ]( ...args, this );
+            this.options.options.callbacks[ fn ]( ...args, this );
 
         }
 
