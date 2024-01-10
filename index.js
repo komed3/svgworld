@@ -301,17 +301,28 @@ export default class SVGWorld {
     #callback ( fn, args = [] ) {
 
         /**
-         * check if callback exists and is executable
+         * check for registered callback functions
          */
-        if(
-            this.options.options?.callbacks?.[ fn ] &&
-            typeof this.options.options.callbacks[ fn ] == 'function'
-        ) {
+        if( this.options.options?.callbacks?.[ fn ] ) {
 
             /**
-             * call function
+             * loop trougth registered callback functions
              */
-            this.options.options.callbacks[ fn ]( ...args, this );
+            [].concat( this.options.options?.callbacks?.[ fn ] ).forEach( ( cb ) => {
+
+                /**
+                 * check if callback is executable
+                 */
+                if( typeof cb == 'function' ) {
+
+                    /**
+                     * call function
+                     */
+                    cb( ...args, this );
+
+                }
+
+            } );
 
         }
 
