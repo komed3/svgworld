@@ -1,19 +1,22 @@
 {
   "name": "svgworld",
-  "description": "simple SVG world map / chart",
+  "description": "Modern, highly modular SVG World Map visualization library",
+  "version": "0.2.0",
+  "license": "MIT",
   "author": {
     "name" : "komed3 (Paul Köhler)",
     "email" : "webmaster@komed3.de",
     "url" : "https://komed3.de"
   },
-  "homepage": "https://github.com/komed3/svgworld#readme",
-  "version": "0.1.0",
-  "license": "MIT",
+  "homepage": "https://github.com/komed3/svgworld",
   "keywords": [
+    "svg",
     "map",
-    "world",
-    "chart",
-    "svg"
+    "visualization",
+    "geography",
+    "interactive",
+    "themes",
+    "plugins"
   ],
   "repository": {
     "type": "git",
