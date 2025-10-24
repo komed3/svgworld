@@ -18,6 +18,8 @@ export class SVGWorldMap {
         this.svg.setAttribute( 'viewBox', '0 0 1000 500' );
         this.container.appendChild( this.svg );
 
+        this.initEventHandler();
+
     }
 
     // Hook system
@@ -45,6 +47,37 @@ export class SVGWorldMap {
             this.hooks[ event ].forEach( callback => callback( mapEvent ) );
 
         }
+
+    }
+
+    // Event handlers
+
+    private handleMouseOver ( event: MouseEvent ) : void {
+
+        const target = event.target as SVGElement;
+        if ( target.tagName === 'path' ) this.triggerHook( 'hover', { element: target } );
+
+    }
+
+    private handleMouseOut ( event: MouseEvent ) : void {
+
+        const target = event.target as SVGElement;
+        if ( target.tagName === 'path' ) this.triggerHook( 'unhover', { element: target } );
+
+    }
+
+    private handleClick ( event: MouseEvent ) : void {
+
+        const target = event.target as SVGElement;
+        if ( target.tagName === 'path' ) this.triggerHook( 'select', { element: target } );
+
+    }
+
+    private initEventHandler () : void {
+
+        this.svg.addEventListener( 'mouseover', this.handleMouseOver.bind( this ) );
+        this.svg.addEventListener( 'mouseout', this.handleMouseOut.bind( this ) );
+        this.svg.addEventListener( 'click', this.handleClick.bind( this ) );
 
     }
 
