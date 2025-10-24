@@ -1,10 +1,11 @@
-import { HookCallback, Hooks, MapEvent, MapOptions } from '../types';
+import { HookCallback, Hooks, MapData, MapEvent, MapOptions } from '../types';
 
 export class SVGWorldMap {
 
     private container: HTMLElement;
     private svg: SVGSVGElement;
     private hooks: Hooks = {};
+    private data: MapData[] = [];
 
     constructor ( options: MapOptions ) {
 
@@ -19,6 +20,14 @@ export class SVGWorldMap {
         this.container.appendChild( this.svg );
 
         this.initEventHandler();
+        this.render();
+
+    }
+
+    public setData ( data: MapData[] ) : void {
+
+        this.data = data;
+        this.render();
 
     }
 
@@ -78,6 +87,34 @@ export class SVGWorldMap {
         this.svg.addEventListener( 'mouseover', this.handleMouseOver.bind( this ) );
         this.svg.addEventListener( 'mouseout', this.handleMouseOut.bind( this ) );
         this.svg.addEventListener( 'click', this.handleClick.bind( this ) );
+
+    }
+
+    // Rendering
+
+    private render () : void {
+
+        // Clear existing content
+        while ( this.svg.firstChild ) this.svg.removeChild( this.svg.firstChild );
+
+        // Render map data
+        this.data.forEach( item => { if ( item.geometry.type === 'Polygon' || item.geometry.type === 'MultiPolygon' ) {
+
+            const path = document.createElementNS( 'http://www.w3.org/2000/svg', 'path' );
+            path.setAttribute( 'd', this.generatePath( item.geometry.coordinates ) );
+            path.setAttribute( 'id', item.id );
+            path.setAttribute( 'data-name', item.properties.name );
+            this.svg.appendChild( path );
+
+        } } );
+
+        this.triggerHook( 'render' );
+
+    }
+
+    private generatePath ( coordinates: any[] ) : string {
+
+        return '';
 
     }
 
