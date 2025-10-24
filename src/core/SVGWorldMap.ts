@@ -1,23 +1,27 @@
 import { HookCallback, Hooks, MapData, MapEvent, MapOptions } from '../types';
+import { PluginManager } from './PluginManager';
 
 export class SVGWorldMap {
 
-    private container: HTMLElement;
-    private svg: SVGSVGElement;
-    private hooks: Hooks = {};
-    private data: MapData[] = [];
+    private _container: HTMLElement;
+    private _svg: SVGSVGElement;
+    private _pluginManager: PluginManager;
+    private _hooks: Hooks = {};
+    private _data: MapData[] = [];
 
     constructor ( options: MapOptions ) {
 
-        this.container = typeof options.container === 'string'
+        this._container = typeof options.container === 'string'
             ? document.getElementById( options.container ) || document.body
             : options.container;
 
-        this.svg = document.createElementNS( 'http://www.w3.org/2000/svg', 'svg' );
-        this.svg.setAttribute( 'width', options.width?.toString() || '100%' );
-        this.svg.setAttribute( 'height', options.height?.toString() || '100%' );
-        this.svg.setAttribute( 'viewBox', '0 0 1000 500' );
-        this.container.appendChild( this.svg );
+        this._svg = document.createElementNS( 'http://www.w3.org/2000/svg', 'svg' );
+        this._svg.setAttribute( 'width', options.width?.toString() || '100%' );
+        this._svg.setAttribute( 'height', options.height?.toString() || '100%' );
+        this._svg.setAttribute( 'viewBox', '0 0 1000 500' );
+        this._container.appendChild( this._svg );
+
+        this._pluginManager = new PluginManager ( this, options.plugins );
 
         this.initEventHandler();
         this.render();
@@ -28,14 +32,14 @@ export class SVGWorldMap {
 
     public addHook ( event: string, callback: HookCallback ) : void {
 
-        if ( ! this.hooks[ event ] ) this.hooks[ event ] = [];
-        this.hooks[ event ].push( callback );
+        if ( ! this._hooks[ event ] ) this._hooks[ event ] = [];
+        this._hooks[ event ].push( callback );
 
     }
 
     public removeHook ( event: string, callback: HookCallback ) : void {
 
-        if ( this.hooks[ event ] ) this.hooks[ event ] = this.hooks[ event ].filter(
+        if ( this._hooks[ event ] ) this._hooks[ event ] = this._hooks[ event ].filter(
             cb => cb !== callback
         );
 
@@ -43,10 +47,10 @@ export class SVGWorldMap {
 
     private triggerHook ( event: string, data?: any ) : void {
 
-        if ( this.hooks[ event ] ) {
+        if ( this._hooks[ event ] ) {
 
             const mapEvent: MapEvent = { type: event, target: this, data };
-            this.hooks[ event ].forEach( callback => callback( mapEvent ) );
+            this._hooks[ event ].forEach( callback => callback( mapEvent ) );
 
         }
 
@@ -77,9 +81,9 @@ export class SVGWorldMap {
 
     private initEventHandler () : void {
 
-        this.svg.addEventListener( 'mouseover', this.handleMouseOver.bind( this ) );
-        this.svg.addEventListener( 'mouseout', this.handleMouseOut.bind( this ) );
-        this.svg.addEventListener( 'click', this.handleClick.bind( this ) );
+        this._svg.addEventListener( 'mouseover', this.handleMouseOver.bind( this ) );
+        this._svg.addEventListener( 'mouseout', this.handleMouseOut.bind( this ) );
+        this._svg.addEventListener( 'click', this.handleClick.bind( this ) );
 
     }
 
@@ -88,16 +92,16 @@ export class SVGWorldMap {
     private render () : void {
 
         // Clear existing content
-        while ( this.svg.firstChild ) this.svg.removeChild( this.svg.firstChild );
+        while ( this._svg.firstChild ) this._svg.removeChild( this._svg.firstChild );
 
         // Render map data
-        this.data.forEach( item => { if ( item.geometry.type === 'Polygon' || item.geometry.type === 'MultiPolygon' ) {
+        this._data.forEach( item => { if ( item.geometry.type === 'Polygon' || item.geometry.type === 'MultiPolygon' ) {
 
             const path = document.createElementNS( 'http://www.w3.org/2000/svg', 'path' );
             path.setAttribute( 'd', this.generatePath( item.geometry.coordinates ) );
             path.setAttribute( 'id', item.id );
             path.setAttribute( 'data-name', item.properties.name );
-            this.svg.appendChild( path );
+            this._svg.appendChild( path );
 
         } } );
 
@@ -113,9 +117,13 @@ export class SVGWorldMap {
 
     // Public API
 
+    public get container () : HTMLElement { return this._container }
+    public get svg () : SVGSVGElement { return this._svg }
+    public get pluginManager () : PluginManager { return this._pluginManager }
+
     public update ( data?: MapData[] ) : void {
 
-        if ( data ) this.data = data;
+        if ( data ) this._data = data;
         this.render();
 
     }
