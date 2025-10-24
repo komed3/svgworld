@@ -15,7 +15,7 @@ export class PluginManager {
 
     public registerPlugin ( plugin: Plugin ) : void {
 
-        if ( ! this.plugins.find( p => p.name === plugin.name ) ) {
+        if ( ! this.getPlugin( plugin.name ) ) {
 
             plugin.initialize( this.map );
             this.plugins.push( plugin );
@@ -32,7 +32,7 @@ export class PluginManager {
 
     public unregisterPlugin ( pluginName: string ) : void {
 
-        const plugin = this.plugins.find( p => p.name === pluginName );
+        const plugin = this.getPlugin( pluginName );
 
         if ( plugin ) {
 
