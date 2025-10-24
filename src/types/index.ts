@@ -1,3 +1,5 @@
+import { SVGWorldMap } from '../core/SVGWorldMap';
+
 export interface Theme {
     name: string;
     background: string;
@@ -25,7 +27,7 @@ export interface Theme {
 
 export interface Plugin {
     name: string;
-    initialize: ( map: any ) => void;
+    initialize: ( map: SVGWorldMap ) => void;
     destroy: () => void;
 }
 
