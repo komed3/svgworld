@@ -36,3 +36,28 @@ export interface MapOptions {
     theme?: Theme;
     plugins?: Plugin[];
 }
+
+export interface MapData {
+    type: string;
+    id: string;
+    properties: {
+        name: string;
+        [ key: string ]: any;
+    };
+    geometry: {
+        type: string;
+        coordinates: any[];
+    };
+}
+
+export interface MapEvent {
+    type: string;
+    target: any;
+    data?: any;
+}
+
+export type HookCallback = ( event: MapEvent ) => void;
+
+export interface Hooks {
+    [ key: string ]: HookCallback[];
+}
