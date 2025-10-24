@@ -24,13 +24,6 @@ export class SVGWorldMap {
 
     }
 
-    public setData ( data: MapData[] ) : void {
-
-        this.data = data;
-        this.render();
-
-    }
-
     // Hook system
 
     public addHook ( event: string, callback: HookCallback ) : void {
@@ -115,6 +108,15 @@ export class SVGWorldMap {
     private generatePath ( coordinates: any[] ) : string {
 
         return '';
+
+    }
+
+    // Public API
+
+    public update ( data?: MapData[] ) : void {
+
+        if ( data ) this.data = data;
+        this.render();
 
     }
 
