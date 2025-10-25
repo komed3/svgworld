@@ -133,4 +133,16 @@ export class SVGWorldMap {
 
     }
 
+    public destroy () : void {
+
+        this._svg.removeEventListener( 'mouseover', this.handleMouseOver.bind( this ) );
+        this._svg.removeEventListener( 'mouseout', this.handleMouseOut.bind( this ) );
+        this._svg.removeEventListener( 'click', this.handleClick.bind( this ) );
+
+        this._pluginManager.destroy();
+        this._container.removeChild( this._svg );
+        this._hooks = {};
+
+    }
+
 }
