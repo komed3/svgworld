@@ -104,6 +104,7 @@ export class SVGWorldMap {
             path.setAttribute( 'd', this.generatePath( item.geometry.coordinates ) );
             path.setAttribute( 'id', item.id );
             path.setAttribute( 'data-name', item.properties.name );
+            this._themeManager.applyTheme( path );
             this._svg.appendChild( path );
 
         } } );
@@ -122,6 +123,7 @@ export class SVGWorldMap {
 
     public get container () : HTMLElement { return this._container }
     public get svg () : SVGSVGElement { return this._svg }
+    public get themeManager () : ThemeManager { return this._themeManager }
     public get pluginManager () : PluginManager { return this._pluginManager }
 
     public update ( data?: MapData[] ) : void {
