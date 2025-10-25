@@ -3,12 +3,12 @@ import { SVGWorldMap } from './SVGWorldMap';
 
 export class PluginManager {
 
-    private map: SVGWorldMap;
-    private plugins: Plugin[] = [];
+    private _map: SVGWorldMap;
+    private _plugins: Plugin[] = [];
 
     constructor ( map: SVGWorldMap, plugins?: Plugin[] ) {
 
-        this.map = map;
+        this._map = map;
         if ( plugins ) this.registerPlugins( plugins );
 
     }
@@ -17,8 +17,8 @@ export class PluginManager {
 
         if ( ! this.getPlugin( plugin.name ) ) {
 
-            plugin.initialize( this.map );
-            this.plugins.push( plugin );
+            plugin.initialize( this._map );
+            this._plugins.push( plugin );
 
         }
 
@@ -37,7 +37,7 @@ export class PluginManager {
         if ( plugin ) {
 
             plugin.destroy();
-            this.plugins = this.plugins.filter( p => p.name !== pluginName );
+            this._plugins = this._plugins.filter( p => p.name !== pluginName );
 
         }
 
@@ -45,14 +45,14 @@ export class PluginManager {
 
     public getPlugin ( pluginName: string ) : Plugin | undefined {
 
-        return this.plugins.find( p => p.name === pluginName );
+        return this._plugins.find( p => p.name === pluginName );
 
     }
 
     public destroy () : void {
 
-        this.plugins.forEach( plugin => plugin.destroy() );
-        this.plugins = [];
+        this._plugins.forEach( plugin => plugin.destroy() );
+        this._plugins = [];
 
     }
 
