@@ -13,6 +13,33 @@ export class ThemeManager {
 
     }
 
+    private ensureStylesExist ( styles: string ) : void {
+
+        const styleId = 'svgworld-styles';
+        let styleSheet = document.getElementById( styleId );
+
+        if ( ! styleSheet ) {
+
+            styleSheet = document.createElement( 'style' );
+            styleSheet.id = styleId;
+            document.head.appendChild( styleSheet );
+
+        }
+
+        if ( ! styleSheet.textContent.includes( styles ) ) {
+            styleSheet.textContent += styles;
+        }
+
+    }
+
+    private applyThemeToAll () : void {
+
+        const paths = this._map.svg.getElementsByTagName( 'path' );
+
+        for ( const path of paths ) this.applyTheme( path );
+
+    }
+
     // Default theme
 
     private getDefaultTheme () : Theme {
