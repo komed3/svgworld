@@ -82,4 +82,39 @@ export class ThemeManager {
 
     }
 
+    public applyTheme ( element: SVGElement ) : void {
+
+        const theme = this._currentTheme;
+
+        if ( element.tagName === 'path' ) {
+
+            element.setAttribute( 'fill', theme.land.fill );
+            element.setAttribute( 'stroke', theme.land.stroke );
+            element.setAttribute( 'stroke-width', theme.land.strokeWidth.toString() );
+
+            // Add hover and selection styles
+            element.style.transition = 'fill 0.2s, stroke 0.2s';
+            const hover = `
+                ${ element.tagName }:hover {
+                    fill: ${ theme.hover.fill };
+                    stroke: ${ theme.hover.stroke };
+                    stroke-width: ${ theme.hover.strokeWidth }px;
+                }
+            `;
+
+            const selected = `
+                ${ element.tagName }.selected {
+                    fill: ${ theme.selected.fill };
+                    stroke: ${ theme.selected.stroke };
+                    stroke-width: ${ theme.selected.strokeWidth }px;
+                }
+            `;
+
+            // Add styles to a stylesheet if not already present
+            this.ensureStylesExist( hover + selected );
+
+        }
+
+    }
+
 }
