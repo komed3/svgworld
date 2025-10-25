@@ -3,7 +3,18 @@ import { SVGWorldMap } from './SVGWorldMap';
 
 export class ThemeManager {
 
-    private map: SVGWorldMap;
-    private currentTheme: Theme;
+    private _map: SVGWorldMap;
+    private _currentTheme: Theme;
+
+    // Public API
+
+    public get theme () : Theme { return this._currentTheme }
+
+    public set theme ( theme: Theme ) {
+
+        this._currentTheme = theme;
+        this.applyThemeToAll();
+
+    }
 
 }
