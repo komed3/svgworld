@@ -115,7 +115,19 @@ export class SVGWorldMap {
 
     private generatePath ( coordinates: any[] ) : string {
 
-        return '';
+        const projection = new GeoProjection( 1000, 500 );
+
+        if ( Array.isArray( coordinates[ 0 ] ) && Array.isArray( coordinates[ 0 ][ 0 ] ) ) {
+
+            // MultiPolygon
+            return projection.projectMultiPolygon( coordinates );
+
+        } else {
+
+            // Single Polygon
+            return projection.projectPolygon( coordinates );
+
+        }
 
     }
 
