@@ -1,10 +1,12 @@
 import { HookCallback, Hooks, MapData, MapEvent, MapOptions } from '../types';
 import { PluginManager } from './PluginManager';
+import { ThemeManager } from './ThemeManager';
 
 export class SVGWorldMap {
 
     private _container: HTMLElement;
     private _svg: SVGSVGElement;
+    private _themeManager: ThemeManager;
     private _pluginManager: PluginManager;
     private _hooks: Hooks = {};
     private _data: MapData[] = [];
@@ -21,7 +23,8 @@ export class SVGWorldMap {
         this._svg.setAttribute( 'viewBox', '0 0 1000 500' );
         this._container.appendChild( this._svg );
 
-        this._pluginManager = new PluginManager ( this, options.plugins );
+        this._themeManager = new ThemeManager( this, options.theme );
+        this._pluginManager = new PluginManager( this, options.plugins );
 
         this.initEventHandler();
         this.render();
