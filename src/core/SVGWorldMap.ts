@@ -1,4 +1,5 @@
 import { HookCallback, Hooks, MapData, MapEvent, MapOptions } from '../types';
+import { GeoProjection } from './GeoProjection';
 import { PluginManager } from './PluginManager';
 import { ThemeManager } from './ThemeManager';
 
